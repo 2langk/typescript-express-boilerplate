@@ -7,8 +7,9 @@ import * as cors from 'cors';
 import globalErrorHandler from './utils/globalErrorHandler';
 import AppError from './utils/AppError';
 import logger from './utils/logger';
+import { sequelize, redisClient } from './models';
 
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: '../config.env' });
 
 process.on('uncaughtException', (err) => {
 	console.log('UNCAUGHT EXCEPTION!');
@@ -47,9 +48,13 @@ app.all('*', (req, res, next) => {
 // Error Hanlder
 app.use(globalErrorHandler);
 
-/* 
-  DB connection
-*/
+// DB connection
+sequelize
+	.sync({ force: false })
+	.then(() => console.log('DB Connected! :: TABLE SYNC'))
+	.catch(() => console.log('ERROR: DB Connect'));
+
+redisClient.on('connect', () => console.log('Redis Connected!'));
 
 const PORT = process.env.PORT || 3000;
 
